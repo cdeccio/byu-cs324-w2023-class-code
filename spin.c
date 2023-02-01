@@ -19,12 +19,12 @@ int main(int argc, char *argv[]) {
 	sigact.sa_handler = myspecialfunc;
 	sigact.sa_flags = 0;
 
-	sigaction(SIGINT, &sigact, NULL);
+	sigaction(SIGCHLD, &sigact, NULL);
 	
 	pid = fork();
 	for (i = 0; i < 1000; i++) {
-		if (i == 5 && pid > 0) {
-			kill(-getpgid(0), SIGINT);
+		if (i == 5 && pid == 0) {
+			exit(0);
 		}
 		printf("main loop %d\n", i);
 		sleep(1);
