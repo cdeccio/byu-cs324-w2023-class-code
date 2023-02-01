@@ -6,8 +6,11 @@
 
 
 void myspecialfunc(int signum) {
-	printf("just kidding\n");
-	exit(0);
+	int i;
+	for (i = 0; i < 5; i++) {
+		printf("handler loop %d\n", i);
+		sleep(1);
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -16,16 +19,12 @@ int main(int argc, char *argv[]) {
 
 	// setup signal handler
 	struct sigaction sigact;
-	sigact.sa_handler = SIG_IGN;
+	sigact.sa_handler = myspecialfunc;
 	sigact.sa_flags = 0;
 
 	sigaction(SIGINT, &sigact, NULL);
 	
 	for (i = 0; i < 1000; i++) {
-		if (i == 5) {
-			sigact.sa_handler = SIG_DFL;
-			sigaction(SIGINT, &sigact, NULL);
-		}
 		printf("main loop %d\n", i);
 		sleep(1);
 	}
