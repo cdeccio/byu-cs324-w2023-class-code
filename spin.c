@@ -16,16 +16,13 @@ int main(int argc, char *argv[]) {
 
 	// setup signal handler
 	struct sigaction sigact;
-	sigact.sa_handler = myspecialfunc;
+	sigact.sa_handler = SIG_IGN;
 	sigact.sa_flags = 0;
 
-	sigaction(SIGCHLD, &sigact, NULL);
+	sigaction(SIGINT, &sigact, NULL);
 	
 	pid = fork();
 	for (i = 0; i < 1000; i++) {
-		if (i == 5 && pid == 0) {
-			exit(0);
-		}
 		printf("main loop %d\n", i);
 		sleep(1);
 	}
