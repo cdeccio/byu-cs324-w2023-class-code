@@ -21,8 +21,11 @@ int main(int argc, char *argv[]) {
 
 	sigaction(SIGINT, &sigact, NULL);
 	
-	pid = fork();
 	for (i = 0; i < 1000; i++) {
+		if (i == 5) {
+			sigact.sa_handler = SIG_DFL;
+			sigaction(SIGINT, &sigact, NULL);
+		}
 		printf("main loop %d\n", i);
 		sleep(1);
 	}
