@@ -11,25 +11,19 @@ void myspecialfunc(int signum) {
 
 int main(int argc, char *argv[]) {
 	int i;
+	int pid;
+	int status;
 
-	sigset_t new_set, old_set;
-
-	// setup signal handler
-	struct sigaction sigact;
-	sigact.sa_handler = myspecialfunc;
-	sigact.sa_flags = 0;
-
-	sigaction(SIGINT, &sigact, NULL);
-
-	sigemptyset(&new_set);
-	sigaddset(&new_set, SIGINT);
-	sigprocmask(SIG_BLOCK, &new_set, &old_set);
-
-	for (i = 0; i < 1000; i++) {
-		if (i == 10) {
-			sigprocmask(SIG_SETMASK, &old_set, NULL);
-		}
-		printf("main loop %d\n", i);
-		sleep(1);
+	if ((pid = fork()) == 0) {
+		sleep(5);
+		exit(2);
 	}
+	//kill(pid, SIGINT);
+	wait(&status);
+	if (WIFEXITED(status)) {
+		printf("exit status: %d\n", WEXITSTATUS(status));
+	} else {
+		printf("exited with signal: %d\n", WTERMSIG(status));
+	}
+
 }
