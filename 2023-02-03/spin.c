@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 		sleep(5);
 		exit(2);
 	}
-	//kill(pid, SIGINT);
+	kill(pid, SIGINT);
 	wait(&status);
 	if (WIFEXITED(status)) {
 		printf("exit status: %d\n", WEXITSTATUS(status));
