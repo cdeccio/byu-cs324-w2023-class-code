@@ -4,9 +4,8 @@ import subprocess
 import time
 
 def main():
-    time.sleep(1)
-    p = subprocess.Popen(['/bin/cat', 'foo'])
-    time.sleep(2)
+    p = subprocess.Popen(['/bin/sleep', '5'])
+    p.wait()
 
 if __name__ == '__main__':
     main()
