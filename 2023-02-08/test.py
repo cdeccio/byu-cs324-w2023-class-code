@@ -4,11 +4,10 @@ import subprocess
 import time
 
 def main():
-    time.sleep(2)
-    f = open('foo1.txt', 'w')
-    p = subprocess.Popen(['/bin/cat', 'foo'], stdout=f)
-    f.close()
+    p = subprocess.Popen(['/bin/cat', 'foo'],
+            stdout=subprocess.PIPE)
     p.wait()
+    print('received', p.stdout.read())
 
 if __name__ == '__main__':
     main()
