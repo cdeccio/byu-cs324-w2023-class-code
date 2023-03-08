@@ -5,8 +5,8 @@
 
 
 void *mythreadfunc(void *arg) {
-	printf("hello world from thread %d\n", getpid());
 	sleep(10);
+	printf("hello world from thread %d\n", getpid());
 }
 
 int main() {
@@ -15,5 +15,5 @@ int main() {
 	for (i = 0; i < 2; i++) {
 		pthread_create(&tid[i], NULL, mythreadfunc, NULL);
 	}
-	sleep(10);
+	sleep(1);
 }
