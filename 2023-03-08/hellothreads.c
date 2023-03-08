@@ -2,11 +2,13 @@
 #include<pthread.h>
 #include<unistd.h>
 #include<sys/types.h>
+#include<stdlib.h>
 
 
 void *mythreadfunc(void *arg) {
-	sleep(10);
+	sleep(1);
 	printf("hello world from thread %d\n", getpid());
+	exit(0);
 }
 
 int main() {
@@ -15,5 +17,6 @@ int main() {
 	for (i = 0; i < 2; i++) {
 		pthread_create(&tid[i], NULL, mythreadfunc, NULL);
 	}
-	sleep(1);
+	sleep(10);
+	printf("hello world from main thread %d\n", getpid());
 }
