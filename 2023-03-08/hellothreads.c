@@ -6,9 +6,8 @@
 
 
 void *mythreadfunc(void *arg) {
-	sleep(1);
 	printf("hello world from thread %d\n", getpid());
-	exit(0);
+	close(1);
 }
 
 int main() {
@@ -16,7 +15,7 @@ int main() {
 	int i;
 	for (i = 0; i < 2; i++) {
 		pthread_create(&tid[i], NULL, mythreadfunc, NULL);
+		sleep(1);
 	}
 	sleep(10);
-	printf("hello world from main thread %d\n", getpid());
 }
