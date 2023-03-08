@@ -9,6 +9,8 @@ void *mythreadfunc(void *arg) {
 	int *x = (int *)arg;
 	printf("hello world from thread %d\n", *x);
 	(*x)++;
+	sleep(5);
+	printf("goodbye from thread %d\n", *x);
 }
 
 int main() {
@@ -18,7 +20,8 @@ int main() {
 	*x = 5;
 	for (i = 0; i < 2; i++) {
 		pthread_create(&tid[i], NULL, mythreadfunc, x);
-		sleep(1);
 	}
-	sleep(10);
+	for (i = 0; i < 2; i++) {
+		pthread_join(tid[i], NULL);
+	}
 }
