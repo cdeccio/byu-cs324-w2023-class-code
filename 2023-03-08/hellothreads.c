@@ -9,7 +9,10 @@ void *mythreadfunc(void *arg) {
 }
 
 int main() {
-	pthread_t tid;
-	pthread_create(&tid, NULL, mythreadfunc, NULL);
+	pthread_t tid[2];
+	int i;
+	for (i = 0; i < 2; i++) {
+		pthread_create(&tid[i], NULL, mythreadfunc, NULL);
+	}
 	sleep(2);
 }
