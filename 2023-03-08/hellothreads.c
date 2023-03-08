@@ -6,15 +6,18 @@
 
 
 void *mythreadfunc(void *arg) {
-	printf("hello world from thread %d\n", getpid());
-	close(1);
+	int *x = (int *)arg;
+	printf("hello world from thread %d\n", *x);
+	(*x)++;
 }
 
 int main() {
 	pthread_t tid[2];
 	int i;
+	int *x = (int *)malloc(sizeof(int));
+	*x = 5;
 	for (i = 0; i < 2; i++) {
-		pthread_create(&tid[i], NULL, mythreadfunc, NULL);
+		pthread_create(&tid[i], NULL, mythreadfunc, x);
 		sleep(1);
 	}
 	sleep(10);
