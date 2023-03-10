@@ -5,11 +5,14 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<pthread.h>
+#include<semaphore.h>
 
 void *thread(void *vargp);  /* Thread routine prototype */
 
 /* Global shared variable */
 volatile long cnt = 0; /* Counter */
+
+sem_t sem;
 
 int main(int argc, char **argv) 
 {
@@ -22,6 +25,8 @@ int main(int argc, char **argv)
 	exit(0);
     }
     niters = atoi(argv[1]);
+
+    sem_init(&sem, 0, 1);
 
     /* Create threads and wait for them to finish */
     pthread_create(&tid1, NULL, thread, &niters);
@@ -43,7 +48,9 @@ void *thread(void *vargp)
     long i, niters = *((long *)vargp);
 
     for (i = 0; i < niters; i++) {
+	sem_wait(&sem);
 	cnt++;
+	sem_post(&sem);
     }
 
     return NULL;
