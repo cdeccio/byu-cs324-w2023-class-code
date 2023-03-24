@@ -4,9 +4,12 @@
 
 
 int main() {
-#pragma omp parallel
+#pragma omp parallel sections
 	{
 		printf("hello world\n");
+#pragma omp section
 		printf("hello world again\n");
+#pragma omp section
+		printf("hello world too\n");
 	}
 }
