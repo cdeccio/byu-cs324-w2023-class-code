@@ -6,10 +6,13 @@
 int main() {
 #pragma omp parallel sections
 	{
-		printf("hello world\n");
+		printf("hello world %d\n",
+				omp_get_thread_num());
 #pragma omp section
-		printf("hello world again\n");
+		printf("hello world again %d\n",
+				omp_get_thread_num());
 #pragma omp section
-		printf("hello world too\n");
+		printf("hello world too %d\n",
+				omp_get_thread_num());
 	}
 }
