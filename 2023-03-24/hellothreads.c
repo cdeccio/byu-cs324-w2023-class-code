@@ -4,15 +4,9 @@
 
 
 int main() {
-#pragma omp parallel sections
-	{
-		printf("hello world %d\n",
-				omp_get_thread_num());
-#pragma omp section
-		printf("hello world again %d\n",
-				omp_get_thread_num());
-#pragma omp section
-		printf("hello world too %d\n",
+#pragma omp parallel for
+	for (int i = 0; i < 12; i++) {
+		printf("hello world %d %d\n", i,
 				omp_get_thread_num());
 	}
 }
