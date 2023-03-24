@@ -5,6 +5,8 @@
 
 int main() {
 #pragma omp parallel
-	printf("hello world\n");
-	printf("hello world again\n");
+	{
+		printf("hello world\n");
+		printf("hello world again\n");
+	}
 }
