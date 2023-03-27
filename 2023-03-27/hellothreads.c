@@ -5,7 +5,7 @@
 
 int main() {
 	int k = 0;
-#pragma omp parallel for firstprivate(k)
+#pragma omp parallel for reduction(+:k)
 	for (int i = 0; i < 12; i++) {
 		k++;
 		printf("hello world iter=%d %d thread=%d\n", i, k,
