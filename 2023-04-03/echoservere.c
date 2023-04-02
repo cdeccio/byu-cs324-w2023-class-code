@@ -16,6 +16,7 @@
 
 struct client_info {
 	int fd;
+	int total_length;
 	char desc[1024];
 };
 
@@ -161,6 +162,7 @@ int main(int argc, char **argv)
 				// info for the new client
 				new_client = (struct client_info *)malloc(sizeof(struct client_info));
 				new_client->fd = connfd;
+				new_client->total_length = 0;
 				sprintf(new_client->desc, "Client with file descriptor %d", connfd);
 
 				// register the client file descriptor
@@ -183,7 +185,8 @@ int main(int argc, char **argv)
 					close(active_client->fd);
 					free(active_client);
 				} else {
-					printf("Received %d bytes\n", len);
+					active_client->total_length += len;
+					printf("Received %d bytes (total: %d)\n", len, active_client->total_length);
 					send(active_client->fd, buf, len, 0);
 				}
 			}
