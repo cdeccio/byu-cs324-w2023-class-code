@@ -108,6 +108,12 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	// set listening file descriptor non-blocking
+	if (fcntl(sfd, F_SETFL, fcntl(sfd, F_GETFL, 0) | O_NONBLOCK) < 0) {
+		fprintf(stderr, "error setting socket option\n");
+		exit(1);
+	}
+
 	if ((efd = epoll_create1(0)) < 0) {
 		perror("Error with epoll_create1");
 		exit(EXIT_FAILURE);
@@ -119,9 +125,10 @@ int main(int argc, char **argv)
 	listener->fd = sfd;
 	sprintf(listener->desc, "Listen file descriptor (accepts new clients)");
 
-	// register the listening file descriptor for incoming events
+	// register the listening file descriptor for incoming events using
+	// edge-triggered monitoring
 	event.data.ptr = listener;
-	event.events = EPOLLIN;
+	event.events = EPOLLIN | EPOLLET;
 	if (epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &event) < 0) {
 		fprintf(stderr, "error adding event\n");
 		exit(EXIT_FAILURE);
@@ -149,35 +156,45 @@ int main(int argc, char **argv)
 			}
 
 			if (sfd == active_client->fd) {
-				remote_addr_len = sizeof(struct sockaddr_storage);
-				connfd = accept(active_client->fd, (struct sockaddr *)&remote_addr, &remote_addr_len);
+				// loop until all pending clients have been accepted
+				while (1) {
+					remote_addr_len = sizeof(struct sockaddr_storage);
+					connfd = accept(active_client->fd, (struct sockaddr *)&remote_addr, &remote_addr_len);
 
-				// set client file descriptor non-blocking
-				if (fcntl(connfd, F_SETFL, fcntl(connfd, F_GETFL, 0) | O_NONBLOCK) < 0) {
-					fprintf(stderr, "error setting socket option\n");
-					exit(1);
-				}
+					if (connfd < 0) {
+						if (errno == EWOULDBLOCK ||
+								errno == EAGAIN) {
+							// no more clients ready to accept
+							break;
+						} else {
+							perror("accept");
+							exit(EXIT_FAILURE);
+						}
+					}
 
-				if (connfd < 0) {
-					perror("accept");
-					exit(EXIT_FAILURE);
-				}
+					// set client file descriptor non-blocking
+					if (fcntl(connfd, F_SETFL, fcntl(connfd, F_GETFL, 0) | O_NONBLOCK) < 0) {
+						fprintf(stderr, "error setting socket option\n");
+						exit(1);
+					}
 
-				// allocate memory for a new struct
-				// client_info, and populate it with
-				// info for the new client
-				new_client = (struct client_info *)malloc(sizeof(struct client_info));
-				new_client->fd = connfd;
-				new_client->total_length = 0;
-				sprintf(new_client->desc, "Client with file descriptor %d", connfd);
+					// allocate memory for a new struct
+					// client_info, and populate it with
+					// info for the new client
+					new_client = (struct client_info *)malloc(sizeof(struct client_info));
+					new_client->fd = connfd;
+					new_client->total_length = 0;
+					sprintf(new_client->desc, "Client with file descriptor %d", connfd);
 
-				// register the client file descriptor
-				// for incoming events
-				event.data.ptr = new_client;
-				event.events = EPOLLIN | EPOLLET;
-				if (epoll_ctl(efd, EPOLL_CTL_ADD, connfd, &event) < 0) {
-					fprintf(stderr, "error adding event\n");
-					exit(1);
+					// register the client file descriptor
+					// for incoming events using
+					// edge-triggered monitoring
+					event.data.ptr = new_client;
+					event.events = EPOLLIN | EPOLLET;
+					if (epoll_ctl(efd, EPOLL_CTL_ADD, connfd, &event) < 0) {
+						fprintf(stderr, "error adding event\n");
+						exit(1);
+					}
 				}
 			} else {
 				// read from socket until (1) the remote side
