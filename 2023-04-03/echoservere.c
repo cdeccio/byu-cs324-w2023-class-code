@@ -174,20 +174,25 @@ int main(int argc, char **argv)
 					exit(1);
 				}
 			} else {
-				len = recv(active_client->fd, buf, MAXLINE, 0);   
-				if (len == 0) { // EOF received
-					// closing the fd will automatically
-					// unregister the fd from the efd
-					close(active_client->fd);
-					free(active_client);
-				} else if (len < 0) {
-					perror("client recv");
-					close(active_client->fd);
-					free(active_client);
-				} else {
-					active_client->total_length += len;
-					printf("Received %d bytes (total: %d)\n", len, active_client->total_length);
-					send(active_client->fd, buf, len, 0);
+				// read from socket until (1) the remote side
+				// has closed the connection or (2) there is no
+				// data left to be read.
+				while (1) {
+					len = recv(active_client->fd, buf, 1, 0);
+					if (len == 0) { // EOF received
+						// closing the fd will automatically
+						// unregister the fd from the efd
+						close(active_client->fd);
+						free(active_client);
+					} else if (len < 0) {
+						perror("client recv");
+						close(active_client->fd);
+						free(active_client);
+					} else {
+						active_client->total_length += len;
+						printf("Received %d bytes (total: %d)\n", len, active_client->total_length);
+						send(active_client->fd, buf, len, 0);
+					}
 				}
 			}
 		}
