@@ -152,6 +152,12 @@ int main(int argc, char **argv)
 				remote_addr_len = sizeof(struct sockaddr_storage);
 				connfd = accept(active_client->fd, (struct sockaddr *)&remote_addr, &remote_addr_len);
 
+				// set client file descriptor non-blocking
+				if (fcntl(connfd, F_SETFL, fcntl(connfd, F_GETFL, 0) | O_NONBLOCK) < 0) {
+					fprintf(stderr, "error setting socket option\n");
+					exit(1);
+				}
+
 				if (connfd < 0) {
 					perror("accept");
 					exit(EXIT_FAILURE);
@@ -184,10 +190,17 @@ int main(int argc, char **argv)
 						// unregister the fd from the efd
 						close(active_client->fd);
 						free(active_client);
+						break;
 					} else if (len < 0) {
-						perror("client recv");
-						close(active_client->fd);
-						free(active_client);
+						if (errno == EWOULDBLOCK ||
+								errno == EAGAIN) {
+							// no more data to be read
+						} else {
+							perror("client recv");
+							close(active_client->fd);
+							free(active_client);
+						}
+						break;
 					} else {
 						active_client->total_length += len;
 						printf("Received %d bytes (total: %d)\n", len, active_client->total_length);
