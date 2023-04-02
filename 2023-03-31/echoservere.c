@@ -178,12 +178,10 @@ int main(int argc, char **argv)
 					// unregister the fd from the efd
 					close(active_client->fd);
 					free(active_client);
-					break;
 				} else if (len < 0) {
 					perror("client recv");
 					close(active_client->fd);
 					free(active_client);
-					break;
 				} else {
 					printf("Received %d bytes\n", len);
 					send(active_client->fd, buf, len, 0);
