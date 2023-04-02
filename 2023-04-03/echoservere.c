@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 				// register the client file descriptor
 				// for incoming events
 				event.data.ptr = new_client;
-				event.events = EPOLLIN;
+				event.events = EPOLLIN | EPOLLET;
 				if (epoll_ctl(efd, EPOLL_CTL_ADD, connfd, &event) < 0) {
 					fprintf(stderr, "error adding event\n");
 					exit(1);
@@ -205,6 +205,7 @@ int main(int argc, char **argv)
 						active_client->total_length += len;
 						printf("Received %d bytes (total: %d)\n", len, active_client->total_length);
 						send(active_client->fd, buf, len, 0);
+						break;
 					}
 				}
 			}
