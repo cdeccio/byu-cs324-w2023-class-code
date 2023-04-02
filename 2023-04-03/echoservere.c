@@ -205,7 +205,6 @@ int main(int argc, char **argv)
 						active_client->total_length += len;
 						printf("Received %d bytes (total: %d)\n", len, active_client->total_length);
 						send(active_client->fd, buf, len, 0);
-						break;
 					}
 				}
 			}
